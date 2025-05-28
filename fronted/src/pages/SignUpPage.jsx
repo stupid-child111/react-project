@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useAuthStore } from '../store/useAuthStore'
-import { MessageSquare, User, Mail, Lock, EyeOff, Eye, Loader2} from 'lucide-react';
+import { MessageSquare, User, Mail, Lock, EyeOff, Eye, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AuthImagePattern from '../components/AuthImagePattern';
+import toast from 'react-hot-toast';
 
 function SignUpPage() {
 
@@ -15,10 +16,33 @@ function SignUpPage() {
 
     const { signup, isSigningup } = useAuthStore();  //什么时候用 {}   什么时候用 []???
 
-    const validateForm = () => { }
+    const validateForm = () => {
+        if (!formData.fullName.trim()) {
+            return toast.error("需要输入用户名")
+        };
+        if (!formData.email.trim()) {
+            return toast.error("需要输入邮箱")
+        };
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email)) {
+            return toast.error("无效的邮箱,请重新输入");
+        };
+        if (!formData.password) {
+            return toast.error("需要输入密码")
+        };
+        if (formData.password.length < 6) {
+            return toast.error("密码不少于6位")
+        };
+
+        return true;
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();//阻止默认跳转  好像只要是表单提交行为都需要阻止默认
+
+        const success = validateForm();
+        if (success === true) {
+            signup(formData);
+        }
     }
     return (
         <div className="min-h-screen grid lg:grid-cols-2">
@@ -82,35 +106,35 @@ function SignUpPage() {
                                     <Lock className="size-5 text-base-content/40" />
                                 </div>
                                 <input
-                                 type={showPassword ? "text" : "password"}
-                                 className={`input input-bordered w-full pl-10 `}
-                                 placeholder='*************'
-                                 value={formData.password}
-                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    type={showPassword ? "text" : "password"}
+                                    className={`input input-bordered w-full pl-10 `}
+                                    placeholder='*************'
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
                                 <button
-                                  type='button'
-                                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                  >
+                                    type='button'
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
                                     {showPassword ? (
                                         <EyeOff className="size-5 text-base-content/40" />
                                     ) : (
                                         <Eye className='size-5 text-base-control/40' />
                                     )}
 
-                                  </button>
+                                </button>
                             </div>
                         </div>
                         <button
-                          type="submit"
-                          className='btn btn-primary w-full'
-                          disabled={isSigningup}
+                            type="submit"
+                            className='btn btn-primary w-full'
+                            disabled={isSigningup}
                         >
                             {isSigningup ? (
                                 <>
-                                <Loader2 className='size-5 animate-spin' />
-                                Loading...
+                                    <Loader2 className='size-5 animate-spin' />
+                                    Loading...
                                 </>
                             ) : (
                                 "Create Account"
@@ -119,19 +143,19 @@ function SignUpPage() {
                     </form>
                     <div className="text-center">
                         <p className="text-base-content/60">
-                        Already have an account ?{""}
-                        <Link to="/login" className='link link-primary' >
-                           Sign in
-                        </Link>
+                            Already have an account ?{""}
+                            <Link to="/login" className='link link-primary' >
+                                Sign in
+                            </Link>
                         </p>
                     </div>
                 </div>
             </div>
 
             {/* right side */}
-            <AuthImagePattern 
-               title="Join our community"
-               subtitle="Connect with friends, share moments, and stay in touch with your loved ones"
+            <AuthImagePattern
+                title="Join our community"
+                subtitle="Connect with friends, share moments, and stay in touch with your loved ones"
             />
         </div>
     )

@@ -8,20 +8,20 @@ export const protectRoute = async (req, res, next) => {
         const token = req.cookies.jwt   //jwt 由 utils 中定义的名字
 
         if (!token) {
-            return req.status(401).json({ message: "没有获取对应Token" })
+            return res.status(401).json({ message: "没有获取对应Token" })
         }
 
         //解码
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         //解码失败
         if (!decoded) {
-            return req.status(401).json({ message: "无效的Token" })
+            return res.status(401).json({ message: "无效的Token" })
 
         }
 
         const user = await User.findById(decoded.userId).select("-password");  // -password   排除密码字段
         if (!user) {
-            return req.status(404).json({ message: "用户未找到" })
+            return res.status(404).json({ message: "用户未找到" })
 
         }
 

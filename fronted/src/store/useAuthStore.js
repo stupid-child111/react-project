@@ -12,6 +12,8 @@ export const useAuthStore = create((set) => ({
     isUpdatingProfile: false,
 
     isCheckingAuth: true,
+    onlineUsers: [],
+
 
     checkAuth: async () => {
         try {
@@ -61,7 +63,7 @@ export const useAuthStore = create((set) => ({
             set({ isLoggingIn: false });
         }
     },
-    updateProfile: async (data) => { 
+    updateProfile: async (data) => {
         set({ isUpdatingProfile: true });
         try {
             const res = await axiosInstance.put("/auth/update-profile", data);

@@ -1,7 +1,7 @@
 import express from 'express'; // ES6 import syntax     修改导入   type:'module'
 import authRoutes from './routes/auth.route.js'; // 用于保存本地文件
 import cors from 'cors';
-
+import bodyParser from 'body-parser';
 import messageRoutes from './routes/message.route.js'; // 用于保存本地文件
 
 
@@ -13,6 +13,10 @@ const app = express();
 const PORT = process.env.PORT;//加载环境变量后可访问    为什么这个没用
 // const PORT = 5009;//加载环境变量后可访问    为什么这个没用
 
+
+
+app.use(bodyParser.json({ limit: '10mb' })); // 增加 JSON 请求体的大小限制
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); // 增加 URL 编码请求体的大小限制
 // CORS配置
 app.use(cors({
     origin: 'http://localhost:5173', // 您的前端URL
@@ -30,7 +34,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);//挂载中间件
 
 
-app.use("/api/message",messageRoutes)
+app.use("/api/messages",messageRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port:${PORT}`);

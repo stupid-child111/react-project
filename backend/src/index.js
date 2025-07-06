@@ -9,7 +9,8 @@ import dotenv from 'dotenv'; // 用于加载环境变量
 import cookieParser from 'cookie-parser';
 import { connectDB } from './lib/db.js';
 dotenv.config(); // 加载环境变量  可以使用 PORT 等环境变量
-const app = express();
+
+import { app, server, io } from './lib/socket.io.js';
 const PORT = process.env.PORT;//加载环境变量后可访问    为什么这个没用
 // const PORT = 5009;//加载环境变量后可访问    为什么这个没用
 
@@ -34,9 +35,9 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);//挂载中间件
 
 
-app.use("/api/messages",messageRoutes)
+app.use("/api/messages", messageRoutes)
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port:${PORT}`);
     connectDB(); // 连接数据库
 })

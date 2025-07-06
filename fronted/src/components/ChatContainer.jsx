@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useChatStore } from '../store/useChatStore'
 import ChatHeader from './ChatHeader';
 import MessagesInput from './MessagesInput';
@@ -7,14 +7,20 @@ import { useAuthStore } from '../store/useAuthStore';
 import { formatMessageTime } from '../lib/utils';
 
 const ChatContainer = () => {
-    const { messages, getMessages, isMessagesLoading, selectedUser } = useChatStore();
+    const { messages, getMessages, isMessagesLoading, selectedUser,
+        subscribeToMessages, unsubscribeFromMessages } = useChatStore();
     const { authUser } = useAuthStore();
+    const messageEndRef = useRef(null);
     useEffect(() => {
-        if (selectedUser) {
-            getMessages(selectedUser._id);
+        getMessages(selectedUser._id);
+        subscribeToMessages();
+        return () => unsubscribeFromMessages();
+    }, [selectedUser, getMessages, subscribeToMessages, unsubscribeFromMessages])
+    useEffect(() => {
+        if (messageEndRef.current && messages) {
+            messageEndRef.current.scrollIntoView({ behavior: "smooth" })
         }
-        // getMessages(selectedUser._id)
-    }, [selectedUser, getMessages])
+    }, [messages])
     if (isMessagesLoading) {
         return (
             <div className="flex-1 flex flex-col overflow-auto">
@@ -31,15 +37,16 @@ const ChatContainer = () => {
                 {messages.map((message) => (
                     <div
                         key={message._id}
-                        className={`chat ${message.senderId=== authUser._id ? "chat-end" : "chat-start"}`}
+                        className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
+                        ref={messageEndRef}
                     >
                         <div className="chat-image avatar">
                             <div className="size-10 rounded-full border">
-                                <img 
-                                src={message.senderId === authUser._id 
-                                    ? authUser.profilePicture || "/avatar.png" 
-                                    : selectedUser.profilePicture || "/avatar.png"}
-                                alt='个人资料图片'
+                                <img
+                                    src={message.senderId === authUser._id
+                                        ? authUser.profilePicture || "/avatar.png"
+                                        : selectedUser.profilePicture || "/avatar.png"}
+                                    alt='个人资料图片'
                                 />
                             </div>
                         </div>
@@ -51,9 +58,9 @@ const ChatContainer = () => {
                         <div className="chat-bubble felx flex-col">
                             {message.image && (
                                 <img
-                                src={message.image}
-                                alt='Attachment'
-                                className='sm:max-w-[200px] rounded-md mb-2' 
+                                    src={message.image}
+                                    alt='Attachment'
+                                    className='sm:max-w-[200px] rounded-md mb-2'
                                 />
                             )}
                             {message.text && <p>{message.text}</p>}

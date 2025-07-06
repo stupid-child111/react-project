@@ -1,24 +1,26 @@
 //状态和功能
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
-import { data } from "react-router-dom";
 import toast from "react-hot-toast";
-import { LogOut } from "lucide-react";
+import { io } from 'socket.io-client'
 
-export const useAuthStore = create((set) => ({
+const BASE_URL = "http://localhost:5173"
+
+export const useAuthStore = create((set, get) => ({
     authUser: null,
     isSigningUp: false,
     isLoggingIn: false,
     isUpdatingProfile: false,
-
     isCheckingAuth: true,
     onlineUsers: [],
+    socket: null,
 
 
     checkAuth: async () => {
         try {
             const res = await axiosInstance.get("/auth/check");
-            set({ authUser: res.data })
+            set({ authUser: res.data });
+            get().connectSocket();
         } catch (error) {
             console.log("Error in checkAuth", error);
             set({ authUser: null });
@@ -33,21 +35,13 @@ export const useAuthStore = create((set) => ({
             const res = await axiosInstance.post('/auth/signup', data)
             toast.success("您已成功注册")
             set({ authUser: res.data });
+            get().connectSocket();
+
         } catch (error) {
             toast.error(error.response.data.message)//为什么这个是response  是error自带的吗??
             console.log(error.message, "打印失败日志")
         } finally {
             set({ isSigningUp: false });
-        }
-    },
-    logout: async () => {
-        try {
-            await axiosInstance.post("auth/logout");
-            set({ authUser: null });
-            toast.success("您已成功登出");
-        } catch (error) {
-            toast.error("登出失败，请稍后再试");
-            console.log("Error in logout", error.response.data.message);
         }
     },
     login: async (data) => {
@@ -56,11 +50,24 @@ export const useAuthStore = create((set) => ({
             const res = await axiosInstance.post("/auth/login", data);
             set({ authUser: res.data });
             toast.success("登录成功");
+
+            get().connectSocket();
         } catch (error) {
             toast.error(error.response.data.message);
             console.log("Error in login", error);
         } finally {
             set({ isLoggingIn: false });
+        }
+    },
+    logout: async () => {
+        try {
+            await axiosInstance.post("auth/logout");
+            set({ authUser: null });
+            toast.success("您已成功登出");
+            get().disconnectSocket();
+        } catch (error) {
+            toast.error("登出失败，请稍后再试");
+            console.log("Error in logout", error.response.data.message);
         }
     },
     updateProfile: async (data) => {
@@ -75,6 +82,25 @@ export const useAuthStore = create((set) => ({
         } finally {
             set({ isUpdatingProfile: false });
         }
+    },
+
+    connectSocket: () => {
+        const { authUser } = get();
+        if (!authUser || get().socket?.connected) return;
+        const socket = io(BASE_URL, {
+            query: {
+                userId: authUser._id,
+            }
+        });
+        socket.connect();
+        set({ socket: socket });
+        socket.on("getOnlineUsers", (userIds) => {
+            set({ onlineUsers: userIds })
+        })
+    },
+
+    disconnectSocket: () => {
+        if (get().socket?.connected) get().socket.disconnect();
     }
 
 }));

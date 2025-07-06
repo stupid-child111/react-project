@@ -1,0 +1,21 @@
+{
+  "name": "react-chat-app",
+  "version": "1.0.0",
+  "description": "- backend",
+  "main": "index.js",
+  "scripts": {
+    "build":"npm install --prefix backend && npm install --prefix fronted && npm run build --prefix fronted",
+    "start": "npm run start --prefix backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stupid-child111/react-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stupid-child111/react-project/issues"
+  },
+  "homepage": "https://github.com/stupid-child111/react-project#readme"
+}

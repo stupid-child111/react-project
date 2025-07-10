@@ -98,6 +98,8 @@ export const logout = (req, res) => {
 export const updateProfile = async (req, res) => {
     try {
         const { profilePicture } = req.body;
+        console.log("",req.body);
+        console.log("111111111111111111111111",profilePicture);
         const userId = req.user._id;
 
         if (!profilePicture) {
@@ -105,11 +107,15 @@ export const updateProfile = async (req, res) => {
         }
         //有的话就上传
 
-        const uploadResponse = await cloudinary.uploader.upload(profilePicture)
+        // const uploadResponse = await cloudinary.uploader.upload(profilePicture)
+        const uploadResponse = await cloudinary.uploader.upload(profilePicture).catch(err => {
+            console.error("Cloudinary upload error:", err);
+            throw new Error("Cloudinary upload failed");
+        });
         const updatedUser = await User.findByIdAndUpdate(userId, { profilePicture: uploadResponse.secure_url }, { new: true });
         res.status(200).json(updatedUser);
     } catch (error) {
-        console.log("error in update profile".error.message);
+        console.log("error in update profile",error.message);
         return res.status(500).json({ message: "Internal Server Error111" });
     }
 }

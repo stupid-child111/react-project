@@ -20,7 +20,7 @@ app.use(bodyParser.json({ limit: '10mb' })); // 增加 JSON 请求体的大小�
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); // 增加 URL 编码请求体的大小限制
 // CORS配置
 app.use(cors({
-    origin: 'http://localhost:5173', // 您的前端URL
+    origin: 'http://localhost:', // 您的前端URL
     credentials: true, // 允许发送cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']

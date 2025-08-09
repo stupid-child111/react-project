@@ -28,7 +28,7 @@ io.on("connection", (socket) => {
     //发布事件给所有已经连接的客户端
     io.emit("getOnlineUsers", Object.keys(userSocketMap))
 
-    socket.on(`${socket.id}断开连接`, () => {
+    socket.on("disconnect", () => {
         console.log(`${socket.id}断开连接`, socket.id);
         delete userSocketMap[userId];
         io.emit("getOnlineUsers", Object.keys(userSocketMap))
